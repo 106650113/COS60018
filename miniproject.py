@@ -52,7 +52,7 @@ def test_reg():
     ur = input(" Please enter the patient's UR number: ")
     for finder in pt_list:
         if finder == ur:
-            specimen_num = input(int('How many specimens did you recieve? '))
+            specimen_num = input('How many specimens did you recieve? ')
             for indiv_spec in specimen_num:
                 spec_type = input('Please specify each specimen type ')
                 specimen_list.append(spec_type)
