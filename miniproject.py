@@ -11,6 +11,7 @@ def user_guide():#Function for navigating the user to the menu option that they 
         test_reg()
     elif menu_sel == '3':
         search()
+
     else: #if the user enters a number that is not present they will be prompted to choose a menu item form 1-4. As there is a while loop this will continue until the user enters an acceptable option 
         print('invalid selection')
         while menu_sel !='1' and menu_sel !='2' and menu_sel !='3' and menu_sel !='4':
@@ -21,8 +22,7 @@ def user_guide():#Function for navigating the user to the menu option that they 
                     test_reg()
                 elif menu_sel == '3':
                     search()
-                elif menu_sel == '4':
-                    add_on()
+
 
 def SR_reg():# This function will create patient profiles which will later be used to register tests under
     while True:
@@ -30,8 +30,22 @@ def SR_reg():# This function will create patient profiles which will later be us
         pt_name = input('Full Name: ')
         pt_dob = input('Date of Birth: ')
         pt_ur = input("UR: ") #UR number is a unique numerical patient identifier
+        while len(pt_ur) > 4:
+            print("Patient's UR can only be 4 digits long")
+            pt_ur = input('UR: ')
+        try:
+            pt_ur = int(pt_ur)
+        except ValueError:
+            print('Please enter a numerical value for the UR') #Will prompt the user to enter a numerical value if they enter a string. Was able to create a loop by calling the function at the end of the except. 
+            SR_reg()
+        #This while statement ensures that no 2 patients have the same unique medical number (UR)
+        while pt_ur in pt_dict:
+                print('UR number is already taken please select another UR number')
+                pt_ur = int(input('UR: '))
         #Here I am creating a patient dictionary within a dictionary the first key would be the patient's unique medical record number (UR) and the secondary dictionary contains the patient's name and date of birth
+        
         pt_dict[pt_ur] = {'name':pt_name,'dob':pt_dob,} #Here I am adding the patient details to the patient dictionary. Which will create a dictionary within a dictionary. The first key of the first dictionary is the patient's ur number and within that dicionary is another dictionary that contains the patient's name and dob
+
         reset = input ('Press 1 to register another patient or 2 to save and return to the main menu: ') #If the user wishes to create another patient profile the function will continue if the user wishes to return to the main menu they will press 2 and this will break the while loop and menu() function will be called.
         if reset == '1':
             continue
@@ -43,29 +57,43 @@ def SR_reg():# This function will create patient profiles which will later be us
 def test_reg():
     while True: #while True code is used to allow the user to register tests for multiple patients
         ur = input(" Please enter the patient's UR number: ")
+
+        try:
+            ur = int(ur)
+        except ValueError:
+            print('Please enter a numerical value') #Will prompt the user to enter a numerical value if they enter a string. Was able to create a loop by calling the function at the end of the except. 
+            test_reg()
+
         if ur in pt_dict: #This if statment will check to see whether the patient exists within the program.
                 specimen_num = int(input('How many specimens did you recieve? '))
-                specimens_list = [] #Here we create an empty specimen so that all specimens or tests can be grouped together
+                specimens_list = [] # create an empty specimen so that all specimens or tests can be grouped together
                 tests_list = [] #Lists are placed within the function so that with each registration they are emptied.
-                #In this for statment we are asking what type of specimen the user has recieved and  what tests have been ordered for it
-                #Then we are performing quality checks on it to ensure that it is suitable for testing i.e. blood tubes are filled, and fully labelled
+
+                #In this for statment I am are asking what type of specimen the user has recieved and  what tests have been ordered for it
+                #Then I am  performing quality checks on it to ensure that it is suitable for testing i.e. blood tubes are filled, and fully labelled
                 for specimens in range(specimen_num):
                     spec_type = input(f'Please specify specimen {specimens + 1} ')
-                    spec_test = input(f'Please enter all tests requested on the {spec_type} tube ')
+                    specimens_list.append(spec_type)
+                    specimen_list_dict[ur] = specimens_list
+                    spec_test = input(f'Please enter all tests requested on the {spec_type} tube (e.g. Liver function tests, Renal function tests, Full blood examination)')
                     check_1 = input ('Is the tube adequately filled? (Y or N)')
                     check_2 = input ('Is the tube fully labelled? (Y or N)')
+
                     #These boolean statments provide the user with instruction of what to do with each possible outcome.
                     #If the outcome does not require a recollect then the tests are added to the tests dictionary
                     if check_1 == 'N' and check_2 == 'N':
                         print('Organise specimen recollection')
+
                     elif check_1 == 'N' and check_2 == 'Y':
                         print('Consult with senior scientist')
                         tests_list.append(spec_test)
                         tests_dict[ur] = tests_list
+
                     elif check_1 == 'Y' and check_2 == 'N':
                         print('Call nurse to label tube')
                         tests_list.append(spec_test)
                         tests_dict[ur] = tests_list
+
                     else:
                         tests_list.append(spec_test)
                         tests_dict[ur] = tests_list
@@ -82,27 +110,47 @@ def test_reg():
             SR_reg()
     menu()
     
-def search():
+def search(): #function to search registered patients
     ur = input("Please Enter the Patient's UR: ")
-    if ur in pt_dict:
-        pass
+    try:
+        ur = int(ur)
+    except ValueError:
+        print('Please enter a numerical value') #Will prompt the user to enter a numerical value if they enter a string. Was able to create a loop by calling the function at the end of the except. 
+        search()
 
-
-    else:
-        print('Patient does not exist. Please complete patient registration')
+    if ur in pt_dict: #checking to see that the patient exists within the system
+        name = pt_dict[ur]['name']
+        dob = pt_dict[ur]['dob']
+    else: # if the patient does not exist then the user will be prompted to make a patient registration
+        print('Patient does not exist. Please register the patient')
         SR_reg()
-        
 
-#   Patient Detais
-#========================
-# Name: 
-# DOB: 
-#UR: 
-# Tests registered: 
-# Tubes collected: 
-#=========================
+    if ur in tests_dict:#checking what tests have been added under this user, if no test have been registered then the else statement will be executed
+        tests = tests_dict[ur]
+    else:
+        tests = 'No tests have been registered'
+    #specimens collected
 
-
+    if ur in specimen_list_dict: #checking what specimens have been collected for this patiet
+        specimens = specimen_list_dict[ur]
+        print (specimens)
+    else:
+        specimens = 'No specimens have been collected yet'
+#printing a summary of the patient's details and what specimens have been collected and what tests have been registered
+    print('====================================')
+    print(f'Name: {name}              ') 
+    print(f'DOB: {dob}              ')
+    print(f'UR: {ur}               ')
+    print(f'Specimens collected: {specimens}')
+    print(f'Tests: {tests}')
+    print('=====================================')
+    reset = input ('Press 1 to search another patient or 2 to return to the main menu: ') #If the user wishes to search another patient profile the function will continue if the user wishes to return to the main menu they will press 2 and this will break the while loop and menu() function will be called.
+    if reset == '1':
+        search()
+    elif reset == '2':
+        menu()
+    
+    
 #Creates a menu so that the user can pick which function to invoke
 def menu(): 
     print('====================================')
