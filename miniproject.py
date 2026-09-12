@@ -30,28 +30,26 @@ def pt_reg():# This function will create patient profiles which will later be us
         pt_name = input('Full Name: ')
         pt_dob = input('Date of Birth: ')
         pt_ur = input("UR: ") #UR number is a unique numerical patient identifier
-        while len(pt_ur) > 4:
-            print("Patient's UR can only be 4 digits long")
-            pt_ur = input('UR: ')
+        #ensuring that the user enters a numerical ur
         try:
             pt_ur = int(pt_ur)
         except ValueError:
             print('Please enter a numerical value for the UR') #Will prompt the user to enter a numerical value if they enter a string. Was able to create a loop by calling the function at the end of the except. 
-            pt_reg()
+            pt_ur = input('UR: ')
         #This while statement ensures that no 2 patients have the same unique medical number (UR)
         while pt_ur in pt_dict:
                 print('UR number is already taken please select another UR number')
                 pt_ur = int(input('UR: '))
+
         #Here I am creating a patient dictionary within a dictionary the first key would be the patient's unique medical record number (UR) and the secondary dictionary contains the patient's name and date of birth
         
         pt_dict[pt_ur] = {'name':pt_name,'dob':pt_dob,} #Here I am adding the patient details to the patient dictionary. Which will create a dictionary within a dictionary. The first key of the first dictionary is the patient's ur number and within that dictionary is another dictionary that contains the patient's name and dob
 
         reset = input ('Press 1 to register another patient or 2 to save and return to the main menu: ') #If the user wishes to create another patient profile the function will continue if the user wishes to return to the main menu they will press 2 and this will break the while loop and menu() function will be called.
         if reset == '1':
-            continue
+            pt_reg()
         elif reset == '2':
-            break
-    menu()
+            menu()
 
 #The purpose of the test_reg() is to allow the user to register tests that the doctor has requested for a particular patient
 def test_reg():
